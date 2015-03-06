@@ -27,3 +27,6 @@
 *.i*86
 *.x86_64
 *.hex
+
+# As this is a library, ignore the main files used for testing
+tests/
