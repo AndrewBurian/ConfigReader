@@ -119,6 +119,7 @@ struct confread_file* confread_open(char* path){
       // move lineStart off the header start
       ++lineStart;
 
+
       // seek forward to the end of the header ']'
       for(lineEnd = lineStart; *lineEnd != 0; ++lineEnd){
         if(*lineEnd == ']'){
@@ -131,8 +132,27 @@ struct confread_file* confread_open(char* path){
         continue;
       }
 
-      // replace header end with null
-      *lineEnd = 0;
+      // seek linestart forward to trim whitespace
+      for(lineStart = lineStart; lineStart != lineEnd; ++lineStart){
+        if(!isspace(*lineStart)){
+          break;
+        }
+      }
+
+      // omit zero size headers
+      if(lineStart == lineEnd){
+        continue;
+      }
+
+      // seek line end back to trim whitespace
+      for(lineEnd = lineEnd - 1; lineEnd != lineStart; --lineEnd){
+        if(!isspace(*lineEnd)){
+          break;
+        }
+      }
+
+      // set next char as null
+      lineEnd[1] = 0;
 
       // create the new section
       thisSection = add_section(confFile, lineStart);
