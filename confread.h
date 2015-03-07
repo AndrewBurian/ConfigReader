@@ -28,7 +28,7 @@ struct confread_pair{
 int confread_open(struct confread_file* confFile);
 void confread_close(struct confread_file* confFile);
 struct confread_section* confread_find_section(struct confread_file* confFile, char* name);
-struct confread_pair* confread_find_key(struct confread_section* confSec, char* name);
+struct confread_pair* confread_find_pair(struct confread_section* confSec, char* key);
 char* confread_find_value(struct confread_section* confSec, char* name);
 
 #endif
