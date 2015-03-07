@@ -1,6 +1,16 @@
 #include "confread.h"
 
-int confread_open(struct confread_file* confFile);
+int confread_open(struct confread_file* confFile){
+
+  // the actual configuration file
+  FILE* confDataFile = 0;
+
+  if(!(confDataFile = fopen(confFile->name, "r"))){
+    // failed to open data file
+    return -1;
+  }
+
+}
 
 struct confread_section* confread_find_section(struct confread_file* confFile, char* name){
 
@@ -9,6 +19,11 @@ struct confread_section* confread_find_section(struct confread_file* confFile, c
 
   // temp pointer to section
   struct confread_section* thisSection = 0;
+
+  // null check
+  if(!confFile || !name){
+    return 0;
+  }
 
   // loop through all sections
   for(sectionCount = 0; sectionCount < confFile->count; ++sectionCount){
@@ -36,6 +51,11 @@ struct confread_pair* confread_find_pair(struct confread_section* confSec, char*
   // temp pair pointer
   struct confread_pair* thisPair = 0;
 
+  // null check
+  if(!confSec || !key){
+    return 0;
+  }
+
   // iterate through all pairs in section
   for(pairCount = 0; pairCount < confSec->count; ++pairCount){
 
@@ -56,7 +76,14 @@ struct confread_pair* confread_find_pair(struct confread_section* confSec, char*
 
 char* confread_find_value(struct confread_section* confSec, char* name){
 
-  return confread_find_pair(confSec, name)->value;
+  struct confread_pair* thisPair = 0;
+
+  // get the pair
+  if(!(thisPair = confread_find_pair(confSec, name))){
+    return 0;
+  }
+
+  return thisPair->value;
 
 }
 

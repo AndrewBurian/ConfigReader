@@ -2,6 +2,7 @@
 #define CONFREAD_H
 
 #include <stdlib.h>
+#include <stdio.h>
 
 // The struct for the entire configuration file
 struct confread_file {
