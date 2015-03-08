@@ -209,17 +209,17 @@ struct confread_file* confread_open(char* path){
   char* keyStart = 0;
   char* keyEnd = 0;
 
+  // open the data file
+  if(!(confDataFile = fopen(path, "r"))){
+    return 0;
+  }
+
   // create the conf file
   confFile = malloc(sizeof(struct confread_file));
   confFile->count = 0;
   confFile->name = malloc(strlen(path) + 1);
   confFile->sections = 0;
   memcpy(confFile->name, path, strlen(path) + 1);
-
-  // open the data file
-  if(!(confDataFile = fopen(confFile->name, "r"))){
-    return 0;
-  }
 
   // add the 'root section'
   thisSection = add_section(confFile, "root");
