@@ -360,6 +360,7 @@ struct confread_file* confread_open(char* path){
   }
 
   free(line);
+  fclose(confDataFile);
 
   return confFile;
 
