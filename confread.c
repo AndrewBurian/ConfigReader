@@ -213,6 +213,7 @@ struct confread_file* confread_open(char* path){
   confFile = malloc(sizeof(struct confread_file));
   confFile->count = 0;
   confFile->name = malloc(strlen(path) + 1);
+  confFile->sections = 0;
   memcpy(confFile->name, path, strlen(path) + 1);
 
   // open the data file
@@ -357,6 +358,8 @@ struct confread_file* confread_open(char* path){
 
     }
   }
+
+  free(line);
 
   return confFile;
 
@@ -585,6 +588,7 @@ void confread_close(struct confread_file** confFile){
 
     // all pairs have been freed, now free the section data
     free(thisSection->pairs);
+    free(thisSection->name);
 
     // free the section itself
     free(thisSection);
@@ -593,6 +597,7 @@ void confread_close(struct confread_file** confFile){
 
   // free the file section data
   free((*confFile)->sections);
+  free((*confFile)->name);
   (*confFile)->sections = 0;
 
   // free the conf file itself
