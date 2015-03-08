@@ -1,3 +1,22 @@
+/* ----------------------------------------------------------------------------
+HEADER FILE
+
+Name:		confread.h
+
+Program:	Configuration Reader
+
+Developer:	Andrew Burian
+
+Created On:	2015-03-07
+
+Description:
+	A config file reading library for C
+
+Revisions:
+	(none)
+
+---------------------------------------------------------------------------- */
+
 #ifndef CONFREAD_H
 #define CONFREAD_H
 
@@ -32,6 +51,6 @@ struct confread_file* confread_open(char* path);
 struct confread_section* confread_find_section(struct confread_file* confFile, char* name);
 struct confread_pair* confread_find_pair(struct confread_section* confSec, char* key);
 void confread_close(struct confread_file** confFile);
-char* confread_find_value(struct confread_section* confSec, char* name);
+char* confread_find_value(struct confread_section* confSec, char* key);
 
 #endif
