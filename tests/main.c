@@ -34,5 +34,7 @@ int main(int argc, char** argv){
 
   }
 
+  confread_close(&configFile);
+
   return 0;
 }

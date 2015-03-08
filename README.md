@@ -1,4 +1,4 @@
-# LibConfRead A configuration file reader in C
+# LibConfRead A configuration file reader
 
 Introduction
 ---------------------
@@ -47,3 +47,47 @@ Exception Case Handling
 Duplicate keys in the same section are NOT accepted! The latter instance of the key will overwrite the former
 
 Duplicate section headers are accepted. They will be amalgamated into one section, with duplicate keys overwritten as mentioned above
+
+Data Structures
+-------------------------
+Confreader creates and uses these data structures to store config files
+
+```c
+// The struct for the entire configuration file
+struct confread_file {
+  char*  name;
+  int    count;
+  struct confread_section** sections;
+};
+
+// The struct for each config section
+struct confread_section{
+  char*  name;
+  int    count;
+  struct confread_pair** pairs;
+};
+
+// The key-value pair
+struct confread_pair{
+  char* key;
+  char* value;
+};
+```
+
+Available Functions
+------------------------
+These functions are used to easily create and access the data parsed by confreader
+
+```c
+struct confread_file* confread_open(char* path);
+struct confread_section* confread_find_section(struct confread_file* confFile, char* name);
+struct confread_pair* confread_find_pair(struct confread_section* confSec, char* key);
+char* confread_find_value(struct confread_section* confSec, char* key);
+void confread_close(struct confread_file** confFile);
+```
+
+`confread_open` loads the entire config file, making the data accessible and not vulnerable to changes once the program is running
+
+the `confread_find` functions are then used to quickly find sections, and key-pairs in sections after it has been opened
+
+`confread_close` should then be called to properly free up all memory used by confreader.

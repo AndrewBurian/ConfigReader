@@ -50,7 +50,7 @@ struct confread_pair{
 struct confread_file* confread_open(char* path);
 struct confread_section* confread_find_section(struct confread_file* confFile, char* name);
 struct confread_pair* confread_find_pair(struct confread_section* confSec, char* key);
-void confread_close(struct confread_file** confFile);
 char* confread_find_value(struct confread_section* confSec, char* key);
+void confread_close(struct confread_file** confFile);
 
 #endif
