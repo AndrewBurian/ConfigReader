@@ -2,11 +2,11 @@
 CC=gcc
 CFLAGS=-c -g
 LDFLAGS=
-LIBS=
+LIBS=-lconfread
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=confreader.exe
 
-SOURCES=main.c ../confread.c
+SOURCES=main.c
 
 all: $(SOURCES) $(EXECUTABLE)
 

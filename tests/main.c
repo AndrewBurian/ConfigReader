@@ -1,4 +1,4 @@
-#include "../confread.h"
+#include <confread.h>
 
 int main(int argc, char** argv){
 

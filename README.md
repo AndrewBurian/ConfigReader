@@ -6,6 +6,14 @@ This project is an attempt to create a standard means to read and parse configur
 
 Feel free to make use of it, send me feedback, or contribute back to this project, all under the [license](LICENSE).
 
+Installation and Compiling
+--------------------------
+Install with `sudo make install`
+
+In source, include `#include <confread.h>`
+
+Then compile with `-lconfread`
+
 Config File Standard
 ---------------------
 The format for the config files this tool will read is as follows:
