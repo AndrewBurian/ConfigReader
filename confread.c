@@ -599,10 +599,9 @@ void confread_close(struct confread_file** confFile){
   // free the file section data
   free((*confFile)->sections);
   free((*confFile)->name);
-  (*confFile)->sections = 0;
 
   // free the conf file itself
   free(*confFile);
-  confFile = 0;
+  *confFile = 0;
 
 }
