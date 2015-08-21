@@ -13,7 +13,10 @@ Description:
 	A config file reading library for C
 
 Revisions:
-	(none)
+	Andrew Burian
+	2015-08-21
+	Revised sections and pair to be a linked list rather than
+	reallocating continuous memory sections.
 
 ---------------------------------------------------------------------------- */
 
@@ -28,21 +31,21 @@ Revisions:
 // The struct for the entire configuration file
 struct confread_file {
 	char *name;
-	int count;
-	struct confread_section **sections;
+	struct confread_section *sections;
 };
 
 // The struct for each config section
 struct confread_section {
 	char *name;
-	int count;
-	struct confread_pair **pairs;
+	struct confread_pair *pairs;
+	struct confread_section *next;
 };
 
 // The key-value pair
 struct confread_pair {
 	char *key;
 	char *value;
+	struct confread_pair *next;
 };
 
 // functions

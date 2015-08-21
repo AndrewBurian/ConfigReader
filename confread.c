@@ -30,7 +30,10 @@ Description:
 	to do with the given data
 
 Revisions:
-	(none)
+	Andrew Burian
+	2015-08-21
+	Revised sections and pair to be a linked list rather than
+	reallocating continuous memory sections.
 
 ---------------------------------------------------------------------------- */
 
@@ -65,7 +68,10 @@ Description:
 	to the file, or will return the existing section if one was found
 
 Revisions:
-	(none)
+	Andrew Burian
+	2015-08-21
+	Revised sections and pair to be a linked list rather than
+	reallocating continuous memory sections.
 
 ---------------------------------------------------------------------------- */
 struct confread_section *add_section(struct confread_file *file, char *name)
@@ -73,27 +79,38 @@ struct confread_section *add_section(struct confread_file *file, char *name)
 
 	// temp section pointer
 	struct confread_section *thisSection = 0;
+	struct confread_section *prevSection = 0;
 
 	// ensure this section does not already exist
 	if ((thisSection = confread_find_section(file, name))) {
 		return thisSection;
 	}
-	// expand the number of sections in the file
-	file->sections =
-	    realloc(file->sections,
-		    sizeof(struct confread_section *) * ++file->count);
-
 	// add the new section
-	thisSection = file->sections[file->count - 1] =
-	    malloc(sizeof(struct confread_section));
+	thisSection = malloc(sizeof(struct confread_section));
 
 	// name the section
 	thisSection->name = malloc(strlen(name) + 1);
 	memcpy(thisSection->name, name, strlen(name) + 1);
 
 	// set the initial values
-	thisSection->count = 0;
+	thisSection->next = 0;
 	thisSection->pairs = 0;
+
+	// get the first section in the list
+	prevSection = file->sections;
+
+	// special handling for first item
+	if (!prevSection) {
+		file->sections = thisSection;
+		return thisSection;
+	}
+	// find the end of the linked list of sections
+	while (prevSection && prevSection->next) {
+		prevSection = prevSection->next;
+	}
+
+	// append to list
+	prevSection->next = thisSection;
 
 	return thisSection;
 
@@ -130,7 +147,10 @@ Description:
 	value overwritten.
 
 Revisions:
-	(none)
+	Andrew Burian
+	2015-08-21
+	Revised sections and pair to be a linked list rather than
+	reallocating continuous memory sections.
 
 ---------------------------------------------------------------------------- */
 struct confread_pair *add_pair(struct confread_section *section, char *key,
@@ -139,6 +159,7 @@ struct confread_pair *add_pair(struct confread_section *section, char *key,
 
 	// temp pair pointer
 	struct confread_pair *thisPair = 0;
+	struct confread_pair *prevPair = 0;
 
 	// ensure pair does not exist
 	if ((thisPair = confread_find_pair(section, key))) {
@@ -148,14 +169,8 @@ struct confread_pair *add_pair(struct confread_section *section, char *key,
 		memcpy(thisPair->value, value, strlen(value) + 1);
 		return thisPair;
 	}
-	// expand the number of pairs in the section
-	section->pairs =
-	    realloc(section->pairs,
-		    sizeof(struct confread_pair *) * ++section->count);
-
 	// add the new pair
-	thisPair = section->pairs[section->count - 1] =
-	    malloc(sizeof(struct confread_pair));
+	thisPair = malloc(sizeof(struct confread_pair));
 
 	// name the pair
 	thisPair->key = malloc(strlen(key) + 1);
@@ -164,6 +179,25 @@ struct confread_pair *add_pair(struct confread_section *section, char *key,
 	// set the initial value
 	thisPair->value = malloc(strlen(value) + 1);
 	memcpy(thisPair->value, value, strlen(value) + 1);
+
+	// set as end of list
+	thisPair->next = 0;
+
+	// get the first pair in the section
+	prevPair = section->pairs;
+
+	// special handling for first
+	if (!prevPair) {
+		section->pairs = thisPair;
+		return thisPair;
+	}
+	// find the end of the linked list of pairs
+	while (prevPair && prevPair->next) {
+		prevPair = prevPair->next;
+	}
+
+	// add to list
+	prevPair->next = thisPair;
 
 	return thisPair;
 }
@@ -193,7 +227,10 @@ Description:
 	processing
 
 Revisions:
-	(none)
+	Andrew Burian
+	2015-08-21
+	Revised sections and pair to be a linked list rather than
+	reallocating continuous memory sections.
 
 ---------------------------------------------------------------------------- */
 struct confread_file *confread_open(char *path)
@@ -222,7 +259,6 @@ struct confread_file *confread_open(char *path)
 	}
 	// create the conf file
 	confFile = malloc(sizeof(struct confread_file));
-	confFile->count = 0;
 	confFile->name = malloc(strlen(path) + 1);
 	confFile->sections = 0;
 	memcpy(confFile->name, path, strlen(path) + 1);
@@ -394,15 +430,15 @@ Description:
 	Searches for a section within a file and returns it if found
 
 Revisions:
-	(none)
+	Andrew Burian
+	2015-08-21
+	Revised sections and pair to be a linked list rather than
+	reallocating continuous memory sections.
 
 ---------------------------------------------------------------------------- */
 struct confread_section *confread_find_section(struct confread_file *confFile,
 					       char *name)
 {
-
-	// loop counter
-	int sectionCount = 0;
 
 	// temp pointer to section
 	struct confread_section *thisSection = 0;
@@ -411,21 +447,23 @@ struct confread_section *confread_find_section(struct confread_file *confFile,
 	if (!confFile || !name) {
 		return 0;
 	}
-	// loop through all sections
-	for (sectionCount = 0; sectionCount < confFile->count; ++sectionCount) {
+	// set as first section
+	thisSection = confFile->sections;
 
-		// get pointer to section
-		thisSection = confFile->sections[sectionCount];
+	// loop through all sections
+	while (thisSection) {
 
 		// check for match
 		if (!strcmp(thisSection->name, name)) {
 			break;
 		}
+		// next section
+		thisSection = thisSection->next;
 
 	}
 
 	// return found section or null
-	return (sectionCount == confFile->count ? 0 : thisSection);
+	return thisSection;
 
 }
 
@@ -456,15 +494,15 @@ Description:
 	Finds a key pair in the section and returns it if found
 
 Revisions:
-	(none)
+	Andrew Burian
+	2015-08-21
+	Revised sections and pair to be a linked list rather than
+	reallocating continuous memory sections.
 
 ---------------------------------------------------------------------------- */
 struct confread_pair *confread_find_pair(struct confread_section *confSec,
 					 char *key)
 {
-
-	// loop counter
-	int pairCount = 0;
 
 	// temp pair pointer
 	struct confread_pair *thisPair = 0;
@@ -473,21 +511,23 @@ struct confread_pair *confread_find_pair(struct confread_section *confSec,
 	if (!confSec || !key) {
 		return 0;
 	}
-	// iterate through all pairs in section
-	for (pairCount = 0; pairCount < confSec->count; ++pairCount) {
+	// set to start of pairs
+	thisPair = confSec->pairs;
 
-		// get the pair pointer
-		thisPair = confSec->pairs[pairCount];
+	// iterate through all pairs in section
+	while (thisPair) {
 
 		// check if the key matches target key
 		if (!strcmp(thisPair->key, key)) {
 			break;
 		}
+		// get next pair
+		thisPair = thisPair->next;
 
 	}
 
 	// return found pair or null
-	return (pairCount == confSec->count ? 0 : thisPair);
+	return thisPair;
 
 }
 
@@ -555,34 +595,41 @@ Description:
 	the pointer to null
 
 Revisions:
-	(none)
+	Andrew Burian
+	2015-08-21
+	Revised sections and pair to be a linked list rather than
+	reallocating continuous memory sections.
 
 ---------------------------------------------------------------------------- */
 void confread_close(struct confread_file **confFile)
 {
 
-	// loop counters
-	int sectionCount = 0;
-	int pairCount = 0;
-
 	// temp section pointer
 	struct confread_section *thisSection = 0;
+	struct confread_section *nextSection = 0;
 
 	// temp pair pointer
 	struct confread_pair *thisPair = 0;
+	struct confread_pair *nextPair = 0;
+
+	// null check
+	if (!confFile || !(*confFile)) {
+		return;
+	}
+	// get the first section
+	thisSection = (*confFile)->sections;
 
 	// loop through all sections in the file
-	for (sectionCount = 0; sectionCount < (*confFile)->count;
-	     ++sectionCount) {
+	while (thisSection) {
 
-		// get a pointer to the current section
-		thisSection = (*confFile)->sections[sectionCount];
+		// get the first pair in this section
+		thisPair = thisSection->pairs;
 
 		// loop through each key pair in the section
-		for (pairCount = 0; pairCount < thisSection->count; ++pairCount) {
+		while (thisPair) {
 
-			// get a pointer to the current pair
-			thisPair = thisSection->pairs[pairCount];
+			// get the next pointer before freeing anything
+			nextPair = thisPair->next;
 
 			// free the two data elements in the pair
 			free(thisPair->key);
@@ -591,19 +638,26 @@ void confread_close(struct confread_file **confFile)
 			// free the pair itself
 			free(thisPair);
 
+			// move to the next one
+			thisPair = nextPair;
+
 		}
 
+		// get the next pointer before freeing anything
+		nextSection = thisSection->next;
+
 		// all pairs have been freed, now free the section data
-		free(thisSection->pairs);
 		free(thisSection->name);
 
 		// free the section itself
 		free(thisSection);
 
+		// move to the next one
+		thisSection = nextSection;
+
 	}
 
 	// free the file section data
-	free((*confFile)->sections);
 	free((*confFile)->name);
 
 	// free the conf file itself
