@@ -205,7 +205,6 @@ struct confread_file *confread_open(char *path)
 	// temp pointers
 	struct confread_file *confFile = 0;
 	struct confread_section *thisSection = 0;
-	struct confread_pair *thisPair = 0;
 
 	// the line from the conf file
 	char *line = 0;

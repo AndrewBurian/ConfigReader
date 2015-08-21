@@ -1,20 +1,24 @@
+MAJOR_VERSION=1
+MINOR_VERSION=0
 
-all: libconfread.a
+all: libconfread.so.$(MAJOR_VERSION).$(MINOR_VERSION)
 
-install: libconfread.a confread.h
-	cp -f libconfread.a /usr/local/lib/
-	cp -f confread.h /usr/local/include/
+install: libconfread.so.$(MAJOR_VERSION).$(MINOR_VERSION) confread.h
+	install -D libconfread.so.$(MAJOR_VERSION).$(MINOR_VERSION) $(DSTDIR)/usr/lib/libconfread.so.$(MAJOR_VERSION).$(MINOR_VERSION)
+	install -D confread.h $(DSTDIR)/usr/include/confread.h
+	ldconfig
+	ln -fs $(DSTDIR)/usr/lib/libconfread.so.$(MAJOR_VERSION) $(DSTDIR)/usr/lib/libconfread.so
 
-libconfread.a: confread.o
-	ar rcs libconfread.a confread.o
+libconfread.so.$(MAJOR_VERSION).$(MINOR_VERSION): confread.o
+	gcc -shared -fPIC -Wl,-soname,libconfread.so.$(MAJOR_VERSION) -o libconfread.so.$(MAJOR_VERSION).$(MINOR_VERSION) confread.o -lc
 
 confread.o: confread.c confread.h
-	gcc -c confread.c
+	gcc -fPIC -c -Wall confread.c
 
 uninstall:
-	rm -f /usr/local/lib/libconfread.a
-	rm -f /usr/local/include/confread.h
+	rm -f $(DSTDIR)/usr/lib/libconfread.so*
+	rm -f $(DSTDIR)/usr/include/confread.h
 
 clean:
 	rm -f *.o
-	rm -f *.a
+	rm -f *.so*
