@@ -665,3 +665,56 @@ void confread_close(struct confread_file **confFile)
 	*confFile = 0;
 
 }
+
+/* ----------------------------------------------------------------------------
+FUNCTION
+
+Name:		Check Value
+
+Prototype:	int confread_check_pair(struct confread_section *section,
+			char* key, char *value);
+
+Developer:	Andrew Burian
+
+Created On:	2015-08-21
+
+Parameters:
+	struct confread_section *secion
+		the section to search for the key-value pair in
+	char *key
+		the key of the pair to search for
+	char *value
+		the value to check if the key is found
+
+Return Values:
+	int
+		boolean result
+		1 if the key is present and the value matches
+		0 otherwise
+
+Description:
+	Searches for the given key in the given section, and if it exists
+	checks to see if the provided value matches the one in the pair.
+
+Revisions:
+	(none)
+
+---------------------------------------------------------------------------- */
+int confread_check_pair(struct confread_section *section, char *key, char *value){
+
+	char *thisValue = 0;
+
+	// sanity checks
+	if(!section || !key || !value){
+		return 0;
+	}
+
+	// attempt to find the value
+	thisValue = confread_find_value(section, key);
+
+	if(!thisValue){
+		return 0;
+	}
+
+	return (!strcmp(value, thisValue));
+}

@@ -55,6 +55,7 @@ struct confread_section *confread_find_section(struct confread_file *confFile,
 struct confread_pair *confread_find_pair(struct confread_section *confSec,
 					 char *key);
 char *confread_find_value(struct confread_section *confSec, char *key);
+int confread_check_pair(struct confread_section *section, char *key, char *value);
 void confread_close(struct confread_file **confFile);
 
 #endif
