@@ -84,6 +84,7 @@ struct confread_section* confread_find_section(struct confread_file* confFile, c
 struct confread_pair* confread_find_pair(struct confread_section* confSec, char* key);
 char* confread_find_value(struct confread_section* confSec, char* key);
 void confread_close(struct confread_file** confFile);
+int confread_check_pair(struct confread_section *section, char *key, char *value);
 ```
 
 `confread_open` loads the entire config file, making the data accessible and not vulnerable to changes once the program is running
